@@ -1,29 +1,63 @@
 require_relative './pair.rb'
 def knight_moves(start, dest)
-
+  result = bfs(start, dest)
+  count = result.length - 1
+  puts "You made it in #{count} moves!  Here's your path:"
+  p result
 end
 
 def bfs(start, dest)
-  board = [8][8]
   queue = []
-  visited = []
-  result = []
+  visited = Array.new(8) { Array.new(8, false) }
+  parent = {}
 
-  dRow = [-1, 0, 1, 0]
-  dCol = [0, 1, 0, -1]
+  dRow = [-2, -2, -1, -1, 1, 1, 2, 2]
+  dCol = [-1, 1, -2, 2, -2, 2, -1, 1]
 
-  queue.push(start)
-  visited.push(start)
-  while(!queue.empty?)
-    
+  queue << start
+  visited[start[0]][start[1]] = true
+  parent[start] = nil
+
+  while !queue.empty?
+    v = queue.shift
+    return build_path(parent, dest) if v == dest
+
+    x, y = v
+
+    for i in 0...8
+      adj_x = x + dRow[i]
+      adj_y = y + dCol[i]
+
+      if is_valid(visited, adj_x, adj_y)
+        queue << [adj_x, adj_y]
+        visited[adj_x][adj_y] = true
+        parent[[adj_x, adj_y]] = v
+      end
+    end
   end
 
+  []
 end
+
 
 def is_valid(visited, row, col)
-  arg = [row, col]
-  if(row < 7 && row >= 0 && col < 7 && col >= 0 && !visited.include?(arg))
-    return true
-  end
-  return false
+  return false if row < 0 || row >= 8
+  return false if col < 0 || col >= 8
+  return false if visited[row][col]
+  true
 end
+
+def build_path(parent, dest)
+  path = []
+  current = dest
+
+  while current
+    path << current
+    current = parent[current]
+  end
+
+  path.reverse
+end
+
+
+p knight_moves([3,3],[4,3])
